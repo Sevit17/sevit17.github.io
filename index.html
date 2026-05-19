@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的博客</title>
+  <style>
+    :root {
+      --bg: #fafafa;
+      --card-bg: #fff;
+      --text: #2d2d2d;
+      --text-secondary: #666;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --border: #e5e5e5;
+      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-hover: 0 10px 25px rgba(0,0,0,.08);
+      --radius: 10px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,.85);
+    }
+    .header-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: -.5px;
+    }
+    .logo:hover { color: var(--accent-hover); }
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: .95rem;
+      transition: color .15s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* Main */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 24px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 0 50px;
+    }
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Post Cards */
+    .post-list { list-style: none; }
+    .post-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .post-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-2px);
+    }
+    .post-card .date {
+      font-size: .85rem;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+    .post-card h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .post-card h2 a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    .post-card h2 a:hover { color: var(--accent); }
+    .post-card .excerpt {
+      color: var(--text-secondary);
+      font-size: .95rem;
+    }
+    .post-card .tags {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+    }
+    .tag {
+      background: #f0f0f5;
+      color: var(--accent);
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 500;
+    }
+
+    /* Post Detail */
+    .post-detail { display: none; }
+    .post-detail.active { display: block; }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: .95rem;
+      font-weight: 500;
+      margin-bottom: 24px;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+    .back-btn:hover { color: var(--accent-hover); }
+    .post-detail .date {
+      color: var(--text-secondary);
+      font-size: .9rem;
+      margin-bottom: 8px;
+    }
+    .post-detail h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 24px;
+      letter-spacing: -.5px;
+      line-height: 1.3;
+    }
+    .post-content p {
+      margin-bottom: 18px;
+      font-size: 1.05rem;
+      color: #333;
+    }
+    .post-content h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 36px 0 14px;
+    }
+    .post-content h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 28px 0 10px;
+    }
+    .post-content code {
+      background: #f4f4f8;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: .9em;
+      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    }
+    .post-content pre {
+      background: #1e1e2e;
+      color: #cdd6f4;
+      padding: 20px 22px;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      margin-bottom: 20px;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+    .post-content pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+    .post-content blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 18px;
+      margin: 20px 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+    .post-content ul, .post-content ol {
+      margin: 0 0 18px 24px;
+    }
+    .post-content li {
+      margin-bottom: 6px;
+    }
+
+    /* About */
+    .about-section { display: none; }
+    .about-section.active { display: block; }
+    .about-section h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+      letter-spacing: -.5px;
+    }
+    .about-section p {
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+      color: #333;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: #999;
+      font-size: .85rem;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* 404 */
+    .not-found {
+      text-align: center;
+      padding: 80px 0;
+    }
+    .not-found h2 {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 2rem; }
+      .post-card { padding: 20px 18px; }
+      .post-detail h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo" data-nav="home">📝 我的博客</a>
+    <nav>
+      <a href="#" data-nav="home">首页</a>
+      <a href="#" data-nav="about">关于</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <!-- ===== HOME ===== -->
+  <section id="home">
+    <div class="hero">
+      <h1>思考与记录</h1>
+      <p>写代码、读书、生活的零散笔记。</p>
+    </div>
+
+    <ul class="post-list" id="postList"></ul>
+  </section>
+
+  <!-- ===== POST DETAIL ===== -->
+  <section class="post-detail" id="postDetail"></section>
+
+  <!-- ===== ABOUT ===== -->
+  <section class="about-section" id="about">
+    <h1>关于我</h1>
+    <p>你好，我是一名全栈开发者，喜欢写代码、阅读和思考。</p>
+    <p>这个博客是我记录学习过程和生活感悟的地方。主要关注前端技术、后端架构、以及偶尔的读书笔记。</p>
+    <p>如果你对某篇文章有想法，欢迎在文章下方留言讨论。</p>
+  </section>
+</main>
+
+<footer>
+  <p>&copy; 2026 我的博客 · Powered by <a href="#">HTML & CSS</a></p>
+</footer>
+
+<script>
+  const posts = [
+    {
+      id: 1,
+      title: "用纯 CSS 实现响应式导航栏",
+      date: "2026-05-15",
+      tags: ["CSS", "前端", "响应式"],
+      excerpt: "不需要 JavaScript，只用几行 CSS 就能做一个漂亮的移动端汉堡菜单，来看看具体实现。",
+      content: `
+        <p>在移动端开发中，导航栏是用户最常交互的组件之一。很多人习惯用 JavaScript 来实现汉堡菜单的展开和收起，但其实 <strong>CSS 完全可以胜任</strong>。</p>
+
+        <h2>核心思路</h2>
+        <p>利用隐藏的 <code>&lt;input type="checkbox"&gt;</code> 配合 <code>:checked</code> 伪类来控制菜单的显示与隐藏。</p>
+
+        <h2>HTML 结构</h2>
+        <pre><code>&lt;nav class="navbar"&gt;
+  &lt;input type="checkbox" id="menu-toggle" class="menu-toggle"&gt;
+  &lt;label for="menu-toggle" class="hamburger"&gt;
+    &lt;span&gt;&lt;/span&gt;
+    &lt;span&gt;&lt;/span&gt;
+    &lt;span&gt;&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;ul class="menu"&gt;
+    &lt;li&gt;&lt;a href="#"&gt;首页&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;文章&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;关于&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+
+        <h2>关键 CSS</h2>
+        <pre><code>.menu-toggle { display: none; }
+
+.menu {
+  display: none;
+  flex-direction: column;
+}
+
+.menu-toggle:checked ~ .menu {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .hamburger { display: none; }
+  .menu {
+    display: flex;
+    flex-direction: row;
+  }
+}</code></pre>
+
+        <h2>优缺点</h2>
+        <p>这个方案的优势是<strong>零 JavaScript 依赖</strong>，性能极佳。但缺点是不支持动画过渡，关闭菜单需要再次点击汉堡图标而不是点击遮罩层。</p>
+
+        <blockquote>简单场景下，CSS-only 方案是最优解。需要复杂交互时再引入 JS。</blockquote>
+      `
+    },
+    {
+      id: 2,
+      title: "JavaScript 异步编程的演进",
+      date: "2026-05-10",
+      tags: ["JavaScript", "异步", "ES6"],
+      excerpt: "从回调地狱到 Promise，再到 async/await，回顾 JS 异步编程的发展历程。",
+      content: `
+        <p>JavaScript 是单线程语言，但通过事件循环机制实现了异步编程。回顾异步编程的演进，可以看到语言设计的不断优化。</p>
+
+        <h2>1. 回调函数时代</h2>
+        <p>最早的异步处理方式是回调函数：</p>
+        <pre><code>fs.readFile('data.json', (err, data) => {
+  if (err) throw err;
+  console.log(JSON.parse(data));
+});</code></pre>
+        <p>但多个异步操作嵌套时，会形成著名的<strong>"回调地狱"</strong>：</p>
+        <pre><code>getUser(id, (user) => {
+  getOrders(user.id, (orders) => {
+    getDetails(orders[0].id, (details) => {
+      // 三层嵌套，难以维护
+    });
+  });
+});</code></pre>
+
+        <h2>2. Promise（ES6）</h2>
+        <p>Promise 将异步操作包装成对象，支持链式调用：</p>
+        <pre><code>getUser(id)
+  .then(user => getOrders(user.id))
+  .then(orders => getDetails(orders[0].id))
+  .then(details => console.log(details))
+  .catch(err => console.error(err));</code></pre>
+
+        <h2>3. async/await（ES2017）</h2>
+        <p>最接近同步写法的异步方案：</p>
+        <pre><code>async function loadOrderDetails(userId) {
+  try {
+    const user = await getUser(userId);
+    const orders = await getOrders(user.id);
+    const details = await getDetails(orders[0].id);
+    console.log(details);
+  } catch (err) {
+    console.error(err);
+  }
+}</code></pre>
+
+        <blockquote>async/await 是语法糖，底层仍然是 Promise，但它让代码的可读性大幅提升。</blockquote>
+
+        <h2>总结</h2>
+        <p>现代 JavaScript 开发中，<strong>async/await 是首选</strong>。但理解 Promise 仍然很重要，因为很多 API（如 fetch）返回的就是 Promise。</p>
+      `
+    },
+    {
+      id: 3,
+      title: "Git 工作流的实战思考",
+      date: "2026-04-28",
+      tags: ["Git", "工具", "工作流"],
+      excerpt: "日常开发中常用的 Git 命令和工作流总结，避免踩坑的几个小技巧。",
+      content: `
+        <p>Git 是现代软件开发不可或缺的工具。以下是日常工作中高频使用的技巧。</p>
+
+        <h2>提交规范</h2>
+        <p>遵循 <strong>Conventional Commits</strong> 规范：</p>
+        <pre><code>feat: 添加用户登录功能
+fix: 修复分页偏移量计算错误
+refactor: 提取公共验证逻辑
+docs: 更新 API 文档</code></pre>
+
+        <h2>分支策略</h2>
+        <p>推荐 <strong>Trunk-Based Development</strong> 或其简化版：</p>
+        <ul>
+          <li><code>main</code> — 生产分支，始终可部署</li>
+          <li><code>feat/xxx</code> — 功能分支，合并后删除</li>
+          <li><code>fix/xxx</code> — 修复分支</li>
+        </ul>
+
+        <h2>几个实用命令</h2>
+        <pre><code># 查看简洁的提交历史
+git log --oneline --graph --all
+
+# 暂存当前工作（不提交）
+git stash push -m "暂存消息"
+
+# 交互式暂存部分修改
+git add -p
+
+# 修改最近一次提交信息
+git commit --amend -m "新的提交信息"
+
+# 找回误删的分支
+git reflog</code></pre>
+
+        <blockquote>好的提交习惯比任何自动化工具都重要。每个提交应该是一个逻辑完整的变更单元。</blockquote>
+      `
+    },
+    {
+      id: 4,
+      title: "构建 RESTful API 的最佳实践",
+      date: "2026-04-15",
+      tags: ["API", "后端", "设计"],
+      excerpt: "好的 API 设计能让前后端协作事半功倍，聊一聊 RESTful 设计的核心原则。",
+      content: `
+        <p>REST（Representational State Transfer）不是标准，而是一种架构风格。以下是在实践中总结的核心原则。</p>
+
+        <h2>1. 用名词表示资源，不用动词</h2>
+        <pre><code>✅ GET    /api/users/123
+✅ POST   /api/users
+✅ PATCH  /api/users/123
+❌ GET    /api/getUser
+❌ POST   /api/createUser</code></pre>
+
+        <h2>2. 正确使用 HTTP 方法</h2>
+        <ul>
+          <li><strong>GET</strong> — 读取资源（幂等，安全）</li>
+          <li><strong>POST</strong> — 创建资源</li>
+          <li><strong>PUT</strong> — 全量替换资源（幂等）</li>
+          <li><strong>PATCH</strong> — 部分更新资源</li>
+          <li><strong>DELETE</strong> — 删除资源（幂等）</li>
+        </ul>
+
+        <h2>3. 统一的响应格式</h2>
+        <pre><code>{
+  "code": 0,
+  "message": "success",
+  "data": {
+    "id": 123,
+    "name": "张三"
+  }
+}</code></pre>
+
+        <h2>4. 合理的状态码</h2>
+        <table style="width:100%; border-collapse: collapse; margin-bottom: 18px;">
+          <tr style="border-bottom: 1px solid #e5e5e5;"><th style="text-align:left;padding:8px 12px;">场景</th><th style="text-align:left;padding:8px 12px;">状态码</th></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">成功获取</td><td style="padding:8px 12px;">200 OK</td></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">创建成功</td><td style="padding:8px 12px;">201 Created</td></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">参数错误</td><td style="padding:8px 12px;">400 Bad Request</td></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">未登录</td><td style="padding:8px 12px;">401 Unauthorized</td></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">无权限</td><td style="padding:8px 12px;">403 Forbidden</td></tr>
+          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">未找到</td><td style="padding:8px 12px;">404 Not Found</td></tr>
+          <tr><td style="padding:8px 12px;">服务端错误</td><td style="padding:8px 12px;">500 Internal Server Error</td></tr>
+        </table>
+
+        <blockquote>设计 API 时，站在调用方的角度思考：这个接口够不够直观？错误信息够不够清晰？</blockquote>
+      `
+    },
+    {
+      id: 5,
+      title: "学习编程的高效方法",
+      date: "2026-04-02",
+      tags: ["学习", "方法论"],
+      excerpt: "不要只看不写。动手实践、参与开源、阅读源码是提升编程能力的三个关键。",
+      content: `
+        <p>很多初学者花大量时间看教程和视频，却很少真正动手。编程是一门<strong>实践性极强</strong>的技能。</p>
+
+        <h2>1. 动手写，而不是看</h2>
+        <p>看了十个小时的 React 教程，不如花一小时把组件自己敲一遍。肌肉记忆在编程中同样重要。</p>
+
+        <h2>2. 阅读优秀的源码</h2>
+        <p>找一些你日常使用的开源库，阅读它们的源码。你会学到：</p>
+        <ul>
+          <li>代码组织方式</li>
+          <li>命名习惯</li>
+          <li>错误处理模式</li>
+          <li>测试编写方法</li>
+        </ul>
+
+        <h2>3. 参与开源项目</h2>
+        <p>从修复文档拼写错误开始，逐步参与更复杂的功能开发。这不仅能提升技术，还能学习团队协作。</p>
+
+        <h2>4. 写博客</h2>
+        <p>教是最好的学。当你尝试把学到的知识点写清楚时，会发现自己理解上的漏洞。</p>
+
+        <blockquote>编程能力的提升没有捷径，唯一的秘诀就是持续的刻意练习。</blockquote>
+      `
+    }
+  ];
+
+  // ===== Render =====
+  const postList = document.getElementById('postList');
+  const postDetail = document.getElementById('postDetail');
+  const aboutSection = document.getElementById('about');
+  const homeSection = document.getElementById('home');
+
+  function showHome() {
+    homeSection.style.display = 'block';
+    postDetail.classList.remove('active');
+    aboutSection.classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.pushState(null, '', '#');
+  }
+
+  function showAbout() {
+    homeSection.style.display = 'none';
+    postDetail.classList.remove('active');
+    aboutSection.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.pushState(null, '', '#about');
+  }
+
+  function showPost(id) {
+    const post = posts.find(p => p.id === id);
+    if (!post) {
+      postDetail.innerHTML = '<div class="not-found"><h2>404</h2><p>文章未找到</p></div>';
+    } else {
+      postDetail.innerHTML = `
+        <button class="back-btn" onclick="showHome()">← 返回首页</button>
+        <div class="date">${post.date}</div>
+        <h1>${post.title}</h1>
+        <div class="tags" style="margin-bottom:24px;">
+          ${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+        <div class="post-content">${post.content}</div>
+      `;
+    }
+    homeSection.style.display = 'none';
+    postDetail.classList.add('active');
+    aboutSection.classList.remove('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    history.pushState(null, '', `#post/${post.id}`);
+  }
+
+  function renderPostList() {
+    postList.innerHTML = posts.map(post => `
+      <li class="post-card" onclick="showPost(${post.id})">
+        <div class="date">${post.date}</div>
+        <h2><a href="#post/${post.id}" onclick="event.preventDefault(); showPost(${post.id})">${post.title}</a></h2>
+        <p class="excerpt">${post.excerpt}</p>
+        <div class="tags">
+          ${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        </div>
+      </li>
+    `).join('');
+  }
+
+  // Navigation
+  document.querySelectorAll('[data-nav]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const nav = link.dataset.nav;
+      if (nav === 'home') showHome();
+      else if (nav === 'about') showAbout();
+    });
+  });
+
+  // Handle browser back/forward
+  window.addEventListener('popstate', () => {
+    const hash = window.location.hash;
+    if (hash.startsWith('#post/')) {
+      const id = parseInt(hash.replace('#post/', ''));
+      if (id) showPost(id);
+    } else if (hash === '#about') {
+      showAbout();
+    } else {
+      showHome();
+    }
+  });
+
+  // Init
+  renderPostList();
+
+  // Load from URL hash on first load
+  const hash = window.location.hash;
+  if (hash.startsWith('#post/')) {
+    const id = parseInt(hash.replace('#post/', ''));
+    if (id) showPost(id);
+  } else if (hash === '#about') {
+    showAbout();
+  }
+</script>
+
+</body>
+</html>
