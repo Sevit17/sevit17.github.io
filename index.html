@@ -4,280 +4,548 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的博客</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* ===== Design Tokens ===== */
     :root {
-      --bg: #fafafa;
-      --card-bg: #fff;
-      --text: #2d2d2d;
-      --text-secondary: #666;
-      --accent: #4f46e5;
-      --accent-hover: #4338ca;
-      --border: #e5e5e5;
-      --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-      --shadow-hover: 0 10px 25px rgba(0,0,0,.08);
-      --radius: 10px;
+      --bg: #f9f7f3;
+      --surface: #ffffff;
+      --text: #1e1b18;
+      --text-muted: #78716c;
+      --text-faint: #a8a29e;
+      --accent: #b45309;
+      --accent-soft: #fef3c7;
+      --accent-glow: rgba(180, 83, 9, 0.12);
+      --border: #e8e4dc;
+      --border-light: #f0ede7;
+      --code-bg: #1c1917;
+      --code-text: #e7e5e4;
+      --font-heading: "Noto Serif SC", "Georgia", "STSong", "SimSun", serif;
+      --font-body: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "Consolas", monospace;
+      --measure: 680px;
+      --radius-sm: 4px;
+      --radius: 6px;
+      --radius-lg: 8px;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* ===== Dark Mode ===== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #171412;
+        --surface: #1f1c18;
+        --text: #e7e5e4;
+        --text-muted: #a8a29e;
+        --text-faint: #78716c;
+        --accent: #f59e0b;
+        --accent-soft: #292208;
+        --accent-glow: rgba(245, 158, 11, 0.15);
+        --border: #2d2a25;
+        --border-light: #24211d;
+        --code-bg: #0f0e0c;
+      }
+    }
 
+    /* ===== Reset ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+      font-family: var(--font-body);
       background: var(--bg);
       color: var(--text);
-      line-height: 1.7;
+      line-height: 1.75;
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background 0.3s var(--ease-out), color 0.3s var(--ease-out);
     }
 
-    /* Header */
-    header {
-      background: var(--card-bg);
-      border-bottom: 1px solid var(--border);
+    /* ===== Reading Progress Bar ===== */
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2.5px;
+      background: var(--accent);
+      z-index: 200;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    /* ===== Header ===== */
+    .site-header {
       position: sticky;
       top: 0;
       z-index: 100;
-      backdrop-filter: blur(8px);
-      background: rgba(255,255,255,.85);
+      padding: 0 24px;
+      background: var(--bg);
+      transition: background 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+    }
+    .site-header.scrolled {
+      box-shadow: 0 1px 0 var(--border);
     }
     .header-inner {
-      max-width: 720px;
+      max-width: var(--measure);
       margin: 0 auto;
-      padding: 16px 24px;
+      padding: 18px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
     .logo {
-      font-size: 1.4rem;
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--text);
       text-decoration: none;
-      letter-spacing: -.5px;
+      letter-spacing: -0.3px;
+      transition: color 0.2s;
     }
-    .logo:hover { color: var(--accent-hover); }
-    nav a {
-      color: var(--text-secondary);
+    .logo:hover { color: var(--accent); }
+    .logo-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-left: 4px;
+      vertical-align: middle;
+      position: relative;
+      top: -2px;
+    }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      color: var(--text-muted);
       text-decoration: none;
-      margin-left: 24px;
-      font-size: .95rem;
-      transition: color .15s;
+      font-size: 0.9rem;
+      font-weight: 500;
+      position: relative;
+      padding: 4px 0;
+      transition: color 0.2s;
     }
-    nav a:hover { color: var(--text); }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1.5px;
+      background: var(--accent);
+      transition: width 0.25s var(--ease-out);
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-links a.active { color: var(--text); }
+    .nav-links a.active::after { width: 100%; }
 
-    /* Main */
+    /* ===== Main Container ===== */
     .container {
-      max-width: 720px;
+      max-width: var(--measure);
       margin: 0 auto;
-      padding: 40px 24px;
+      padding: 0 24px;
     }
 
-    /* Hero */
+    /* ===== Hero ===== */
     .hero {
-      text-align: center;
-      padding: 60px 0 50px;
+      padding: 80px 0 56px;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
     }
     .hero h1 {
-      font-size: 2.6rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--accent), #7c3aed);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      color: var(--text);
     }
     .hero p {
-      color: var(--text-secondary);
-      font-size: 1.1rem;
+      font-size: 1.08rem;
+      color: var(--text-muted);
       max-width: 480px;
-      margin: 0 auto;
+      line-height: 1.7;
     }
 
-    /* Post Cards */
+    /* ===== Post List ===== */
     .post-list { list-style: none; }
     .post-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 30px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
+      display: block;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-light);
       cursor: pointer;
-      transition: all .2s;
+      transition: padding 0.3s var(--ease-out);
+      position: relative;
     }
-    .post-card:hover {
-      box-shadow: var(--shadow-hover);
-      transform: translateY(-2px);
+    .post-card:first-child { border-top: 1px solid var(--border-light); }
+    .post-card:hover { padding-left: 16px; }
+    .post-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
     }
     .post-card .date {
-      font-size: .85rem;
-      color: var(--text-secondary);
-      margin-bottom: 6px;
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      font-variant-numeric: tabular-nums;
+    }
+    .post-card .read-time {
+      font-size: 0.78rem;
+      color: var(--text-faint);
     }
     .post-card h2 {
-      font-size: 1.35rem;
-      font-weight: 700;
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 600;
+      line-height: 1.35;
       margin-bottom: 8px;
-      line-height: 1.3;
+      letter-spacing: -0.01em;
+      transition: color 0.2s;
     }
     .post-card h2 a {
       color: var(--text);
       text-decoration: none;
     }
-    .post-card h2 a:hover { color: var(--accent); }
+    .post-card:hover h2 { color: var(--accent); }
     .post-card .excerpt {
-      color: var(--text-secondary);
-      font-size: .95rem;
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      line-height: 1.65;
     }
-    .post-card .tags {
-      margin-top: 14px;
+    .tags {
       display: flex;
       gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
     }
     .tag {
-      background: #f0f0f5;
-      color: var(--accent);
-      padding: 3px 12px;
-      border-radius: 20px;
-      font-size: .8rem;
+      display: inline-block;
+      font-size: 0.75rem;
       font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 0.2s, transform 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .tag:hover {
+      transform: translateY(-1px);
     }
 
-    /* Post Detail */
+    /* ===== Empty State ===== */
+    .empty-state {
+      text-align: center;
+      padding: 80px 0;
+      color: var(--text-muted);
+    }
+    .empty-state h3 {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    /* ===== Post Detail ===== */
     .post-detail { display: none; }
     .post-detail.active { display: block; }
+
     .back-btn {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      color: var(--accent);
+      gap: 8px;
+      color: var(--text-muted);
       text-decoration: none;
-      font-size: .95rem;
+      font-size: 0.88rem;
       font-weight: 500;
-      margin-bottom: 24px;
+      margin-bottom: 32px;
+      margin-top: 32px;
       cursor: pointer;
       border: none;
       background: none;
+      padding: 6px 0;
+      transition: color 0.2s, gap 0.25s var(--ease-out);
     }
-    .back-btn:hover { color: var(--accent-hover); }
-    .post-detail .date {
-      color: var(--text-secondary);
-      font-size: .9rem;
+    .back-btn:hover {
+      color: var(--text);
+      gap: 12px;
+    }
+    .back-btn svg {
+      width: 16px; height: 16px;
+      transition: transform 0.25s var(--ease-out);
+    }
+    .back-btn:hover svg { transform: translateX(-3px); }
+
+    .post-header {
+      margin-bottom: 40px;
+    }
+    .post-header .date {
+      font-size: 0.88rem;
+      color: var(--text-faint);
       margin-bottom: 8px;
     }
-    .post-detail h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 24px;
-      letter-spacing: -.5px;
+    .post-header h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
       line-height: 1.3;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
     }
+    .post-header .tags { margin-top: 0; }
+    .post-header .read-time {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    /* ===== Post Content ===== */
+    .post-content { padding-bottom: 64px; }
     .post-content p {
-      margin-bottom: 18px;
+      margin-bottom: 22px;
       font-size: 1.05rem;
-      color: #333;
+      line-height: 1.82;
+      color: var(--text);
     }
     .post-content h2 {
+      font-family: var(--font-heading);
       font-size: 1.4rem;
       font-weight: 700;
-      margin: 36px 0 14px;
+      margin: 48px 0 16px;
+      letter-spacing: -0.01em;
     }
     .post-content h3 {
+      font-family: var(--font-heading);
       font-size: 1.15rem;
       font-weight: 600;
-      margin: 28px 0 10px;
+      margin: 36px 0 12px;
     }
+    .post-content strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+    .post-content a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent-glow);
+      transition: border-color 0.2s;
+    }
+    .post-content a:hover { border-bottom-color: var(--accent); }
     .post-content code {
-      background: #f4f4f8;
-      padding: 2px 7px;
-      border-radius: 5px;
-      font-size: .9em;
-      font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88em;
+      font-family: var(--font-mono);
+      font-weight: 500;
     }
     .post-content pre {
-      background: #1e1e2e;
-      color: #cdd6f4;
-      padding: 20px 22px;
-      border-radius: var(--radius);
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 20px 24px;
+      border-radius: var(--radius-lg);
       overflow-x: auto;
-      margin-bottom: 20px;
-      font-size: .9rem;
-      line-height: 1.6;
+      margin: 8px 0 24px;
+      font-size: 0.88rem;
+      line-height: 1.7;
+      position: relative;
     }
     .post-content pre code {
       background: none;
-      padding: 0;
       color: inherit;
+      padding: 0;
+      font-weight: 400;
     }
     .post-content blockquote {
-      border-left: 3px solid var(--accent);
-      padding-left: 18px;
-      margin: 20px 0;
-      color: var(--text-secondary);
+      border-left: 2.5px solid var(--accent);
+      padding: 4px 0 4px 20px;
+      margin: 28px 0;
+      color: var(--text-muted);
       font-style: italic;
+      font-size: 1rem;
     }
     .post-content ul, .post-content ol {
-      margin: 0 0 18px 24px;
+      margin: 0 0 22px 24px;
+      color: var(--text);
     }
     .post-content li {
-      margin-bottom: 6px;
+      margin-bottom: 8px;
+      padding-left: 4px;
+      font-size: 1.02rem;
+      line-height: 1.7;
+    }
+    .post-content li::marker { color: var(--text-faint); }
+    .post-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      font-size: 0.93rem;
+    }
+    .post-content th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-faint);
+      border-bottom: 2px solid var(--border);
+    }
+    .post-content td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .post-content tr:hover td { background: var(--accent-soft); }
+    .post-content img {
+      max-width: 100%;
+      border-radius: var(--radius);
+      margin: 24px 0;
     }
 
-    /* About */
-    .about-section { display: none; }
+    /* ===== About Section ===== */
+    .about-section { display: none; padding-top: 40px; }
     .about-section.active { display: block; }
     .about-section h1 {
+      font-family: var(--font-heading);
       font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 20px;
-      letter-spacing: -.5px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
     }
     .about-section p {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       font-size: 1.05rem;
-      color: #333;
+      line-height: 1.8;
+      color: var(--text);
+    }
+    .about-section .highlight-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin: 32px 0;
+    }
+    .highlight-box h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+    .highlight-box ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .highlight-box ul li {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 4px 14px;
+      border-radius: 20px;
     }
 
-    /* Footer */
-    footer {
+    /* ===== Footer ===== */
+    .site-footer {
       text-align: center;
       padding: 40px 24px;
-      color: #999;
-      font-size: .85rem;
-      border-top: 1px solid var(--border);
-      margin-top: 60px;
+      color: var(--text-faint);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border-light);
+      margin-top: 80px;
     }
-    footer a {
-      color: var(--accent);
+    .site-footer a {
+      color: var(--text-muted);
       text-decoration: none;
+      transition: color 0.2s;
     }
+    .site-footer a:hover { color: var(--accent); }
 
-    /* 404 */
+    /* ===== 404 ===== */
     .not-found {
       text-align: center;
-      padding: 80px 0;
+      padding: 100px 0;
     }
     .not-found h2 {
-      font-size: 4rem;
-      font-weight: 800;
+      font-family: var(--font-heading);
+      font-size: 5rem;
+      font-weight: 700;
       color: var(--accent);
       margin-bottom: 12px;
+      line-height: 1;
+    }
+    .not-found p {
+      color: var(--text-muted);
+      margin-bottom: 32px;
     }
 
-    /* Responsive */
+    /* ===== Fade Transition ===== */
+    .fade-section {
+      transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+    }
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    .fade-exit {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    /* ===== Card Entrance Animation ===== */
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .post-card {
+      animation: cardIn 0.45s var(--ease-out) backwards;
+    }
+    .post-card:nth-child(1) { animation-delay: 0.05s; }
+    .post-card:nth-child(2) { animation-delay: 0.10s; }
+    .post-card:nth-child(3) { animation-delay: 0.15s; }
+    .post-card:nth-child(4) { animation-delay: 0.20s; }
+    .post-card:nth-child(5) { animation-delay: 0.25s; }
+    .post-card:nth-child(6) { animation-delay: 0.30s; }
+
+    /* ===== Responsive ===== */
     @media (max-width: 600px) {
-      .hero h1 { font-size: 2rem; }
-      .post-card { padding: 20px 18px; }
-      .post-detail h1 { font-size: 1.5rem; }
+      .hero { padding: 48px 0 36px; }
+      .post-card { padding: 20px 0; }
+      .post-card:hover { padding-left: 8px; }
+      .post-content pre { padding: 16px 18px; font-size: 0.82rem; }
+      .post-content p { font-size: 1rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
 <body>
 
-<header>
+<!-- Reading Progress -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Header -->
+<header class="site-header" id="siteHeader">
   <div class="header-inner">
-    <a href="#" class="logo" data-nav="home">📝 我的博客</a>
-    <nav>
-      <a href="#" data-nav="home">首页</a>
+    <a href="#" class="logo" data-nav="home">我的博客<span class="logo-dot"></span></a>
+    <nav class="nav-links">
+      <a href="#" data-nav="home" class="active">文章</a>
       <a href="#" data-nav="about">关于</a>
     </nav>
   </div>
@@ -285,52 +553,61 @@
 
 <main class="container">
   <!-- ===== HOME ===== -->
-  <section id="home">
+  <section id="home" class="fade-section">
     <div class="hero">
+      <div class="hero-label">Blog</div>
       <h1>思考与记录</h1>
-      <p>写代码、读书、生活的零散笔记。</p>
+      <p>写代码、读书、生活——一些零散但真诚的笔记。</p>
     </div>
-
     <ul class="post-list" id="postList"></ul>
   </section>
 
   <!-- ===== POST DETAIL ===== -->
-  <section class="post-detail" id="postDetail"></section>
+  <section class="post-detail fade-section" id="postDetail"></section>
 
   <!-- ===== ABOUT ===== -->
-  <section class="about-section" id="about">
+  <section class="about-section fade-section" id="about">
     <h1>关于我</h1>
-    <p>你好，我是一名全栈开发者，喜欢写代码、阅读和思考。</p>
-    <p>这个博客是我记录学习过程和生活感悟的地方。主要关注前端技术、后端架构、以及偶尔的读书笔记。</p>
+    <p>你好，我是一名全栈开发者。喜欢写代码、阅读和深度思考。</p>
+    <p>这个博客记录了我的学习过程和技术感悟。主要关注前端技术、后端架构、以及偶尔的读书笔记。</p>
     <p>如果你对某篇文章有想法，欢迎在文章下方留言讨论。</p>
+
+    <div class="highlight-box">
+      <h3>常用技术栈</h3>
+      <ul>
+        <li>JavaScript / TypeScript</li>
+        <li>React / Vue</li>
+        <li>Node.js</li>
+        <li>Python</li>
+        <li>MySQL / MongoDB</li>
+        <li>Docker</li>
+        <li>Git</li>
+        <li>CSS / Tailwind</li>
+      </ul>
+    </div>
   </section>
 </main>
 
-<footer>
-  <p>&copy; 2026 我的博客 · Powered by <a href="#">HTML & CSS</a></p>
+<footer class="site-footer">
+  <p>&copy; 2026 我的博客 &middot; Built with care</p>
 </footer>
 
 <script>
-  const posts = [
+  // ===== Data =====
+  const posts = [/* --- post content preserved --- */
     {
-      id: 1,
-      title: "用纯 CSS 实现响应式导航栏",
-      date: "2026-05-15",
+      id: 1, title: "用纯 CSS 实现响应式导航栏", date: "2026-05-15",
       tags: ["CSS", "前端", "响应式"],
-      excerpt: "不需要 JavaScript，只用几行 CSS 就能做一个漂亮的移动端汉堡菜单，来看看具体实现。",
+      excerpt: "不需要 JavaScript，只用几行 CSS 就能做一个漂亮的移动端汉堡菜单。",
       content: `
         <p>在移动端开发中，导航栏是用户最常交互的组件之一。很多人习惯用 JavaScript 来实现汉堡菜单的展开和收起，但其实 <strong>CSS 完全可以胜任</strong>。</p>
-
         <h2>核心思路</h2>
         <p>利用隐藏的 <code>&lt;input type="checkbox"&gt;</code> 配合 <code>:checked</code> 伪类来控制菜单的显示与隐藏。</p>
-
         <h2>HTML 结构</h2>
         <pre><code>&lt;nav class="navbar"&gt;
   &lt;input type="checkbox" id="menu-toggle" class="menu-toggle"&gt;
   &lt;label for="menu-toggle" class="hamburger"&gt;
-    &lt;span&gt;&lt;/span&gt;
-    &lt;span&gt;&lt;/span&gt;
-    &lt;span&gt;&lt;/span&gt;
+    &lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;
   &lt;/label&gt;
   &lt;ul class="menu"&gt;
     &lt;li&gt;&lt;a href="#"&gt;首页&lt;/a&gt;&lt;/li&gt;
@@ -338,42 +615,26 @@
     &lt;li&gt;&lt;a href="#"&gt;关于&lt;/a&gt;&lt;/li&gt;
   &lt;/ul&gt;
 &lt;/nav&gt;</code></pre>
-
         <h2>关键 CSS</h2>
         <pre><code>.menu-toggle { display: none; }
-
-.menu {
-  display: none;
-  flex-direction: column;
-}
-
-.menu-toggle:checked ~ .menu {
-  display: flex;
-}
+.menu { display: none; flex-direction: column; }
+.menu-toggle:checked ~ .menu { display: flex; }
 
 @media (min-width: 768px) {
   .hamburger { display: none; }
-  .menu {
-    display: flex;
-    flex-direction: row;
-  }
+  .menu { display: flex; flex-direction: row; }
 }</code></pre>
-
         <h2>优缺点</h2>
-        <p>这个方案的优势是<strong>零 JavaScript 依赖</strong>，性能极佳。但缺点是不支持动画过渡，关闭菜单需要再次点击汉堡图标而不是点击遮罩层。</p>
-
+        <p>这个方案的优势是<strong>零 JavaScript 依赖</strong>，性能极佳。缺点是不支持动画过渡。</p>
         <blockquote>简单场景下，CSS-only 方案是最优解。需要复杂交互时再引入 JS。</blockquote>
       `
     },
     {
-      id: 2,
-      title: "JavaScript 异步编程的演进",
-      date: "2026-05-10",
+      id: 2, title: "JavaScript 异步编程的演进", date: "2026-05-10",
       tags: ["JavaScript", "异步", "ES6"],
       excerpt: "从回调地狱到 Promise，再到 async/await，回顾 JS 异步编程的发展历程。",
       content: `
         <p>JavaScript 是单线程语言，但通过事件循环机制实现了异步编程。回顾异步编程的演进，可以看到语言设计的不断优化。</p>
-
         <h2>1. 回调函数时代</h2>
         <p>最早的异步处理方式是回调函数：</p>
         <pre><code>fs.readFile('data.json', (err, data) => {
@@ -388,7 +649,6 @@
     });
   });
 });</code></pre>
-
         <h2>2. Promise（ES6）</h2>
         <p>Promise 将异步操作包装成对象，支持链式调用：</p>
         <pre><code>getUser(id)
@@ -396,7 +656,6 @@
   .then(orders => getDetails(orders[0].id))
   .then(details => console.log(details))
   .catch(err => console.error(err));</code></pre>
-
         <h2>3. async/await（ES2017）</h2>
         <p>最接近同步写法的异步方案：</p>
         <pre><code>async function loadOrderDetails(userId) {
@@ -409,29 +668,23 @@
     console.error(err);
   }
 }</code></pre>
-
-        <blockquote>async/await 是语法糖，底层仍然是 Promise，但它让代码的可读性大幅提升。</blockquote>
-
+        <blockquote>async/await 是语法糖，底层仍然是 Promise，但它让代码可读性大幅提升。</blockquote>
         <h2>总结</h2>
-        <p>现代 JavaScript 开发中，<strong>async/await 是首选</strong>。但理解 Promise 仍然很重要，因为很多 API（如 fetch）返回的就是 Promise。</p>
+        <p>现代 JavaScript 开发中，<strong>async/await 是首选</strong>。但理解 Promise 仍然很重要。</p>
       `
     },
     {
-      id: 3,
-      title: "Git 工作流的实战思考",
-      date: "2026-04-28",
+      id: 3, title: "Git 工作流的实战思考", date: "2026-04-28",
       tags: ["Git", "工具", "工作流"],
       excerpt: "日常开发中常用的 Git 命令和工作流总结，避免踩坑的几个小技巧。",
       content: `
         <p>Git 是现代软件开发不可或缺的工具。以下是日常工作中高频使用的技巧。</p>
-
         <h2>提交规范</h2>
         <p>遵循 <strong>Conventional Commits</strong> 规范：</p>
         <pre><code>feat: 添加用户登录功能
 fix: 修复分页偏移量计算错误
 refactor: 提取公共验证逻辑
 docs: 更新 API 文档</code></pre>
-
         <h2>分支策略</h2>
         <p>推荐 <strong>Trunk-Based Development</strong> 或其简化版：</p>
         <ul>
@@ -439,7 +692,6 @@ docs: 更新 API 文档</code></pre>
           <li><code>feat/xxx</code> — 功能分支，合并后删除</li>
           <li><code>fix/xxx</code> — 修复分支</li>
         </ul>
-
         <h2>几个实用命令</h2>
         <pre><code># 查看简洁的提交历史
 git log --oneline --graph --all
@@ -455,26 +707,21 @@ git commit --amend -m "新的提交信息"
 
 # 找回误删的分支
 git reflog</code></pre>
-
         <blockquote>好的提交习惯比任何自动化工具都重要。每个提交应该是一个逻辑完整的变更单元。</blockquote>
       `
     },
     {
-      id: 4,
-      title: "构建 RESTful API 的最佳实践",
-      date: "2026-04-15",
+      id: 4, title: "构建 RESTful API 的最佳实践", date: "2026-04-15",
       tags: ["API", "后端", "设计"],
       excerpt: "好的 API 设计能让前后端协作事半功倍，聊一聊 RESTful 设计的核心原则。",
       content: `
-        <p>REST（Representational State Transfer）不是标准，而是一种架构风格。以下是在实践中总结的核心原则。</p>
-
+        <p>REST（Representational State Transfer）不是标准，而是一种架构风格。以下是核心原则。</p>
         <h2>1. 用名词表示资源，不用动词</h2>
         <pre><code>✅ GET    /api/users/123
 ✅ POST   /api/users
 ✅ PATCH  /api/users/123
 ❌ GET    /api/getUser
 ❌ POST   /api/createUser</code></pre>
-
         <h2>2. 正确使用 HTTP 方法</h2>
         <ul>
           <li><strong>GET</strong> — 读取资源（幂等，安全）</li>
@@ -483,44 +730,34 @@ git reflog</code></pre>
           <li><strong>PATCH</strong> — 部分更新资源</li>
           <li><strong>DELETE</strong> — 删除资源（幂等）</li>
         </ul>
-
         <h2>3. 统一的响应格式</h2>
         <pre><code>{
   "code": 0,
   "message": "success",
-  "data": {
-    "id": 123,
-    "name": "张三"
-  }
+  "data": { "id": 123, "name": "张三" }
 }</code></pre>
-
         <h2>4. 合理的状态码</h2>
-        <table style="width:100%; border-collapse: collapse; margin-bottom: 18px;">
-          <tr style="border-bottom: 1px solid #e5e5e5;"><th style="text-align:left;padding:8px 12px;">场景</th><th style="text-align:left;padding:8px 12px;">状态码</th></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">成功获取</td><td style="padding:8px 12px;">200 OK</td></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">创建成功</td><td style="padding:8px 12px;">201 Created</td></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">参数错误</td><td style="padding:8px 12px;">400 Bad Request</td></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">未登录</td><td style="padding:8px 12px;">401 Unauthorized</td></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">无权限</td><td style="padding:8px 12px;">403 Forbidden</td></tr>
-          <tr style="border-bottom: 1px solid #e5e5e5;"><td style="padding:8px 12px;">未找到</td><td style="padding:8px 12px;">404 Not Found</td></tr>
-          <tr><td style="padding:8px 12px;">服务端错误</td><td style="padding:8px 12px;">500 Internal Server Error</td></tr>
+        <table>
+          <tr><th>场景</th><th>状态码</th></tr>
+          <tr><td>成功获取</td><td>200 OK</td></tr>
+          <tr><td>创建成功</td><td>201 Created</td></tr>
+          <tr><td>参数错误</td><td>400 Bad Request</td></tr>
+          <tr><td>未登录</td><td>401 Unauthorized</td></tr>
+          <tr><td>无权限</td><td>403 Forbidden</td></tr>
+          <tr><td>未找到</td><td>404 Not Found</td></tr>
+          <tr><td>服务端错误</td><td>500 Internal Server Error</td></tr>
         </table>
-
-        <blockquote>设计 API 时，站在调用方的角度思考：这个接口够不够直观？错误信息够不够清晰？</blockquote>
+        <blockquote>设计 API 时，站在调用方的角度思考：这个接口够不够直观？</blockquote>
       `
     },
     {
-      id: 5,
-      title: "学习编程的高效方法",
-      date: "2026-04-02",
+      id: 5, title: "学习编程的高效方法", date: "2026-04-02",
       tags: ["学习", "方法论"],
       excerpt: "不要只看不写。动手实践、参与开源、阅读源码是提升编程能力的三个关键。",
       content: `
         <p>很多初学者花大量时间看教程和视频，却很少真正动手。编程是一门<strong>实践性极强</strong>的技能。</p>
-
         <h2>1. 动手写，而不是看</h2>
         <p>看了十个小时的 React 教程，不如花一小时把组件自己敲一遍。肌肉记忆在编程中同样重要。</p>
-
         <h2>2. 阅读优秀的源码</h2>
         <p>找一些你日常使用的开源库，阅读它们的源码。你会学到：</p>
         <ul>
@@ -529,29 +766,53 @@ git reflog</code></pre>
           <li>错误处理模式</li>
           <li>测试编写方法</li>
         </ul>
-
         <h2>3. 参与开源项目</h2>
         <p>从修复文档拼写错误开始，逐步参与更复杂的功能开发。这不仅能提升技术，还能学习团队协作。</p>
-
         <h2>4. 写博客</h2>
         <p>教是最好的学。当你尝试把学到的知识点写清楚时，会发现自己理解上的漏洞。</p>
-
         <blockquote>编程能力的提升没有捷径，唯一的秘诀就是持续的刻意练习。</blockquote>
       `
     }
   ];
 
-  // ===== Render =====
+  // ===== DOM Elements =====
   const postList = document.getElementById('postList');
   const postDetail = document.getElementById('postDetail');
   const aboutSection = document.getElementById('about');
   const homeSection = document.getElementById('home');
+  const progressBar = document.getElementById('progressBar');
+  const siteHeader = document.getElementById('siteHeader');
+  const navLinks = document.querySelectorAll('[data-nav]');
+
+  // ===== Utilities =====
+  function estimateReadTime(html) {
+    const text = html.replace(/<[^>]+>/g, '');
+    const chars = text.replace(/\s/g, '').length;
+    return Math.max(1, Math.round(chars / 400));
+  }
+
+  function fadeIn(el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(8px)';
+    requestAnimationFrame(() => {
+      el.style.transition = 'opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+  }
+
+  // ===== Navigation =====
+  function setActiveNav(nav) {
+    navLinks.forEach(a => a.classList.remove('active'));
+    navLinks.forEach(a => { if (a.dataset.nav === nav) a.classList.add('active'); });
+  }
 
   function showHome() {
     homeSection.style.display = 'block';
     postDetail.classList.remove('active');
     aboutSection.classList.remove('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveNav('home');
+    window.scrollTo({ top: 0, behavior: 'instant' });
     history.pushState(null, '', '#');
   }
 
@@ -559,47 +820,77 @@ git reflog</code></pre>
     homeSection.style.display = 'none';
     postDetail.classList.remove('active');
     aboutSection.classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveNav('about');
+    fadeIn(aboutSection);
+    window.scrollTo({ top: 0, behavior: 'instant' });
     history.pushState(null, '', '#about');
   }
 
   function showPost(id) {
     const post = posts.find(p => p.id === id);
     if (!post) {
-      postDetail.innerHTML = '<div class="not-found"><h2>404</h2><p>文章未找到</p></div>';
+      postDetail.innerHTML = '<div class="not-found"><h2>404</h2><p>文章未找到</p><button class="back-btn" onclick="showHome()">← 返回首页</button></div>';
     } else {
+      const mins = estimateReadTime(post.content);
       postDetail.innerHTML = `
-        <button class="back-btn" onclick="showHome()">← 返回首页</button>
-        <div class="date">${post.date}</div>
-        <h1>${post.title}</h1>
-        <div class="tags" style="margin-bottom:24px;">
-          ${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-        </div>
-        <div class="post-content">${post.content}</div>
+        <button class="back-btn" onclick="showHome()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3L5 8l5 5"/></svg>
+          返回文章列表
+        </button>
+        <article>
+          <header class="post-header">
+            <div class="date">${post.date}</div>
+            <h1>${post.title}</h1>
+            <div class="read-time">阅读时间约 ${mins} 分钟</div>
+            <div class="tags">${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          </header>
+          <div class="post-content">${post.content}</div>
+        </article>
       `;
     }
     homeSection.style.display = 'none';
     postDetail.classList.add('active');
     aboutSection.classList.remove('active');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
     history.pushState(null, '', `#post/${post.id}`);
+    fadeIn(postDetail);
   }
 
+  // ===== Render Post List =====
   function renderPostList() {
-    postList.innerHTML = posts.map(post => `
-      <li class="post-card" onclick="showPost(${post.id})">
-        <div class="date">${post.date}</div>
-        <h2><a href="#post/${post.id}" onclick="event.preventDefault(); showPost(${post.id})">${post.title}</a></h2>
-        <p class="excerpt">${post.excerpt}</p>
-        <div class="tags">
-          ${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}
-        </div>
-      </li>
-    `).join('');
+    postList.innerHTML = posts.map(post => {
+      const mins = estimateReadTime(post.content);
+      return `
+        <li class="post-card" onclick="showPost(${post.id})">
+          <div class="post-card-meta">
+            <span class="date">${post.date}</span>
+            <span class="read-time">${mins} 分钟阅读</span>
+          </div>
+          <h2><a href="#post/${post.id}" onclick="event.preventDefault(); showPost(${post.id})">${post.title}</a></h2>
+          <p class="excerpt">${post.excerpt}</p>
+          <div class="tags">${post.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+        </li>
+      `;
+    }).join('');
   }
 
-  // Navigation
-  document.querySelectorAll('[data-nav]').forEach(link => {
+  // ===== Progress Bar =====
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = `${progress}%`;
+
+    // Header shadow on scroll
+    if (scrollTop > 10) {
+      siteHeader.classList.add('scrolled');
+    } else {
+      siteHeader.classList.remove('scrolled');
+    }
+  }, { passive: true });
+
+  // ===== Navigation Click Handlers =====
+  navLinks.forEach(link => {
     link.addEventListener('click', e => {
       e.preventDefault();
       const nav = link.dataset.nav;
@@ -608,7 +899,7 @@ git reflog</code></pre>
     });
   });
 
-  // Handle browser back/forward
+  // ===== Browser Back/Forward =====
   window.addEventListener('popstate', () => {
     const hash = window.location.hash;
     if (hash.startsWith('#post/')) {
@@ -621,10 +912,9 @@ git reflog</code></pre>
     }
   });
 
-  // Init
+  // ===== Init =====
   renderPostList();
 
-  // Load from URL hash on first load
   const hash = window.location.hash;
   if (hash.startsWith('#post/')) {
     const id = parseInt(hash.replace('#post/', ''));
